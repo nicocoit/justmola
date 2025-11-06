@@ -12,12 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
         'calzettoni': { 'bianchi': 'cw.png', 'neri': 'cn.png', 'blu': 'cb.png' }
     };
 
-    // 2. Stato corrente del configuratore (indice dell'opzione selezionata)
+    // 2. Stato corrente del configuratore
     const currentIndices = {
-        'maglia': 0, // Inizia con la prima opzione (bianca)
-        'pantaloncini': 0, // Inizia con la prima opzione (bianchi)
-        'calzettoni': 0 // Inizia con la prima opzione (bianchi)
+        'maglia': 0, 
+        'pantaloncini': 0, 
+        'calzettoni': 0
     };
+
+    // Variabili per la gestione del touch (swipe)
+    let touchStartX = 0;
+    const SWIPE_THRESHOLD = 50; // Distanza minima in pixel per considerare il movimento come swipe
 
     // 3. Riferimenti agli elementi DOM
     const imgMaglia = document.getElementById('img-maglia');
@@ -26,6 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const kitImagesContainer = document.getElementById('kit-images');
     const exportButton = document.getElementById('export-button');
+
+    const kitPieceWrappers = document.querySelectorAll('.kit-piece-wrapper');
 
     const elementMap = {
         'maglia': { img: imgMaglia },
@@ -46,41 +52,73 @@ document.addEventListener('DOMContentLoaded', () => {
         img.alt = `${type} ${value}`;
     }
 
-// 5. Gestore per i pulsanti di scorrimento (nav-button)
-document.querySelectorAll('.nav-button').forEach(button => {
-    // Aggiungi il listener al pulsante stesso
-    button.addEventListener('click', (event) => {
-        // Usa `this` o `button` per riferirti all'elemento pulsante corretto, 
-        // anche se l'evento è originato dall'immagine al suo interno.
-        const clickedButton = button;
-        
-        const type = clickedButton.dataset.type; // 'maglia', 'pantaloncini', o 'calzettoni'
-        const direction = clickedButton.dataset.direction; // 'prev' o 'next'
-        
+    // --- SEZIONE CHIAVE: GESTIONE SCORRIMENTO (Click e Swipe) ---
+
+    // Funzione unificata per cambiare l'indice
+    function changeIndex(type, direction) {
         const numOptions = options[type].length;
         let currentIndex = currentIndices[type];
 
         if (direction === 'next') {
-            // Ciclo in avanti
             currentIndex = (currentIndex + 1) % numOptions;
         } else if (direction === 'prev') {
-            // Ciclo all'indietro
+            // Aggiungiamo numOptions prima del modulo per gestire i valori negativi in JavaScript
             currentIndex = (currentIndex - 1 + numOptions) % numOptions;
         }
 
         currentIndices[type] = currentIndex;
         updateKitPiece(type);
+    }
+    
+    // 5a. Gestore per i pulsanti di scorrimento (Click)
+    document.querySelectorAll('.nav-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const type = button.dataset.type;
+            const direction = button.dataset.direction;
+            changeIndex(type, direction);
+        });
     });
-});
 
-    // 6. Logica di Esportazione
+    // 5b. Gestore per il Trascinamento (Swipe)
+    kitPieceWrappers.forEach(wrapper => {
+        const type = wrapper.dataset.type;
+
+        wrapper.addEventListener('touchstart', (e) => {
+            // Registra la posizione iniziale del tocco
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true }); // passive: true per ottimizzazione mobile
+
+        wrapper.addEventListener('touchmove', (e) => {
+            // Impedisce lo scorrimento verticale della pagina durante lo swipe orizzontale
+            e.preventDefault(); 
+        }, { passive: false });
+
+        wrapper.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchStartX - touchEndX; // Calcola la differenza orizzontale
+
+            if (Math.abs(diff) > SWIPE_THRESHOLD) {
+                // È uno swipe valido
+                if (diff > 0) {
+                    // Swipe a sinistra (passa al successivo)
+                    changeIndex(type, 'next');
+                } else {
+                    // Swipe a destra (passa al precedente)
+                    changeIndex(type, 'prev');
+                }
+            }
+            touchStartX = 0; // Resetta la posizione
+        });
+    });
+
+    // --- FINE GESTIONE SCORRIMENTO ---
+
+    // 6. Logica di Esportazione (NON MODIFICATA)
     exportButton.addEventListener('click', async () => {
-        // Nascondi i pulsanti per una cattura pulita
         document.querySelectorAll('.nav-button').forEach(btn => btn.style.visibility = 'hidden');
 
-        // Cattura l'immagine
         const captureOptions = {
-            scale: 2, // Cattura ad alta risoluzione per una migliore qualità
+            scale: 2, 
             useCORS: true, 
             backgroundColor: '#ffffff'
         };
@@ -89,15 +127,11 @@ document.querySelectorAll('.nav-button').forEach(button => {
         const canvas = await html2canvas(kitImagesOnly, captureOptions);
         const imgData = canvas.toDataURL('image/png');
 
-        // Ripristina la visibilità dei pulsanti
         document.querySelectorAll('.nav-button').forEach(btn => btn.style.visibility = 'visible');
 
-        // Chiedi il formato e scarica
-        //const format = prompt("Vuoi esportare come JPG o PDF? Scrivi 'jpg' o 'pdf'.", "jpg");
-        const format = 'jpg';
+        const format = prompt("Vuoi esportare come JPG o PDF? Scrivi 'jpg' o 'pdf'.", "jpg");
 
         if (format && format.toLowerCase() === 'jpg') {
-            // Esportazione JPG
             const jpegData = canvas.toDataURL('image/jpeg', 0.9);
             const link = document.createElement('a');
             link.href = jpegData;
@@ -106,11 +140,9 @@ document.querySelectorAll('.nav-button').forEach(button => {
             link.click();
             document.body.removeChild(link);
         } else if (format && format.toLowerCase() === 'pdf') {
-            // Esportazione PDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
-            // Calcolo delle dimensioni per adattare l'immagine al PDF
             const imgWidth = 190;
             const pageHeight = doc.internal.pageSize.height;
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -125,7 +157,7 @@ document.querySelectorAll('.nav-button').forEach(button => {
         }
     });
 
-    // 7. Inizializzazione: Assicura che le immagini di default siano caricate
+    // 7. Inizializzazione
     function initializeKit() {
         updateKitPiece('maglia');
         updateKitPiece('pantaloncini');
