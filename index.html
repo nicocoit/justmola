@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuratore Completo Sportivo</title>
+    <title>Configuratore Completo JUST MOLA</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -13,51 +15,45 @@
     </header>
 
     <main>
-        <div class="controls">
-            <h2>Scegli il tuo completo:</h2>
-            
-            <div class="dropdown-group">
-                <label for="maglia">Maglia:</label>
-                <select id="maglia">
-                    <option value="bianca">Bianca</option>
-                    <option value="nera">Nera</option>
-                    <option value="rosa">Rosa</option>
-                </select>
-            </div>
-
-            <div class="dropdown-group">
-                <label for="pantaloncini">Pantaloncini:</label>
-                <select id="pantaloncini">
-                    <option value="bianchi">Bianchi</option>
-                    <option value="neri">Neri</option>
-                    <option value="blu">Blu</option>
-                </select>
-            </div>
-
-            <div class="dropdown-group">
-                <label for="calzettoni">Calzettoni:</label>
-                <select id="calzettoni">
-                    <option value="bianchi">Bianchi</option>
-                    <option value="neri">Neri</option>
-                    <option value="blu">Blu</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="kit-preview">
-            <h2>Anteprima Completo:</h2>
+        
+        <div class="kit-preview full-width">            
             <div id="kit-images" class="kit-container">
-                <img id="img-maglia" src="mw.png" alt="Maglia" class="kit-piece">
-                <img id="img-pantaloncini" src="pw.png" alt="Pantaloncini" class="kit-piece">
-                <img id="img-calzettoni" src="cw.png" alt="Calzettoni" class="kit-piece">
+                
+                <div class="kit-piece-wrapper" data-type="maglia">
+                    <button class="nav-button prev-button" data-direction="prev" data-type="maglia">
+                        <img src="sx.png" alt="Precedente" class="nav-icon">
+                    </button>
+                    <img id="img-maglia" src="mw.png" alt="Maglia Bianca" class="kit-piece">
+                    <button class="nav-button next-button" data-direction="next" data-type="maglia">
+                        <img src="dx.png" alt="Successivo" class="nav-icon">
+                    </button>
+                </div>
+
+                <div class="kit-piece-wrapper" data-type="pantaloncini">
+                    <button class="nav-button prev-button" data-direction="prev" data-type="pantaloncini">
+                        <img src="sx.png" alt="Precedente" class="nav-icon">
+                    </button>
+                    <img id="img-pantaloncini" src="pw.png" alt="Pantaloncini Bianchi" class="kit-piece">
+                    <button class="nav-button next-button" data-direction="next" data-type="pantaloncini">
+                        <img src="dx.png" alt="Successivo" class="nav-icon">
+                    </button>
+                </div>
+
+                <div class="kit-piece-wrapper" data-type="calzettoni">
+                    <button class="nav-button prev-button" data-direction="prev" data-type="calzettoni">
+                        <img src="sx.png" alt="Precedente" class="nav-icon">
+                    </button>
+                    <img id="img-calzettoni" src="cw.png" alt="Calzettoni Bianchi" class="kit-piece">
+                    <button class="nav-button next-button" data-direction="next" data-type="calzettoni">
+                        <img src="dx.png" alt="Successivo" class="nav-icon">
+                    </button>
+                </div>
             </div>
             
             <button id="export-button">Esporta Completo</button>
         </div>
     </main>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

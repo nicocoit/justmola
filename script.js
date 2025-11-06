@@ -1,91 +1,98 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Mappatura dei valori delle opzioni ai nomi dei file immagine (RESTANO UGUALI)
-    const imageMap = {
-        'maglia': {
-            'bianca': 'mw.png',
-            'nera': 'mn.png',
-            'rosa': 'mr.png'
-        },
-        'pantaloncini': {
-            'bianchi': 'pw.png',
-            'neri': 'pn.png',
-            'blu': 'pb.png'
-        },
-        'calzettoni': {
-            'bianchi': 'cw.png',
-            'neri': 'cn.png',
-            'blu': 'cb.png'
-        }
+    // 1. Definisci le opzioni e la mappa delle immagini
+    const options = {
+        'maglia': ['bianca', 'nera', 'rosa'],
+        'pantaloncini': ['bianchi', 'neri', 'blu'],
+        'calzettoni': ['bianchi', 'neri', 'blu']
     };
 
-    // 2. Riferimenti agli elementi DOM (AGGIUNGI IL PULSANTE)
-    const magliaSelect = document.getElementById('maglia');
-    const pantalonciniSelect = document.getElementById('pantaloncini');
-    const calzettoniSelect = document.getElementById('calzettoni');
+    const imageMap = {
+        'maglia': { 'bianca': 'mw.png', 'nera': 'mn.png', 'rosa': 'mr.png' },
+        'pantaloncini': { 'bianchi': 'pw.png', 'neri': 'pn.png', 'blu': 'pb.png' },
+        'calzettoni': { 'bianchi': 'cw.png', 'neri': 'cn.png', 'blu': 'cb.png' }
+    };
 
+    // 2. Stato corrente del configuratore (indice dell'opzione selezionata)
+    const currentIndices = {
+        'maglia': 0, // Inizia con la prima opzione (bianca)
+        'pantaloncini': 0, // Inizia con la prima opzione (bianchi)
+        'calzettoni': 0 // Inizia con la prima opzione (bianchi)
+    };
+
+    // 3. Riferimenti agli elementi DOM
     const imgMaglia = document.getElementById('img-maglia');
     const imgPantaloncini = document.getElementById('img-pantaloncini');
     const imgCalzettoni = document.getElementById('img-calzettoni');
 
-    const kitImagesContainer = document.getElementById('kit-images'); // Il div che contiene le immagini del kit
-    const exportButton = document.getElementById('export-button'); // Il nuovo pulsante
+    const kitImagesContainer = document.getElementById('kit-images');
+    const exportButton = document.getElementById('export-button');
 
-    // 3. Funzione per aggiornare l'immagine (RESTA UGUALE)
-    function updateKit(type, value) {
-        let imgElement;
-        
-        if (type === 'maglia') {
-            imgElement = imgMaglia;
-        } else if (type === 'pantaloncini') {
-            imgElement = imgPantaloncini;
-        } else if (type === 'calzettoni') {
-            imgElement = imgCalzettoni;
-        } else {
-            return;
-        }
+    const elementMap = {
+        'maglia': { img: imgMaglia },
+        'pantaloncini': { img: imgPantaloncini },
+        'calzettoni': { img: imgCalzettoni }
+    };
 
+    // 4. Funzione per aggiornare l'immagine
+    function updateKitPiece(type) {
+        const index = currentIndices[type];
+        const value = options[type][index]; 
         const filename = imageMap[type][value];
         
-        if (filename) {
-            imgElement.src = filename;
-            imgElement.alt = `${type} ${value}`;
-        }
+        const { img } = elementMap[type];
+
+        // Aggiorna l'immagine e l'alt text
+        img.src = filename;
+        img.alt = `${type} ${value}`;
     }
 
-    // 4. Gestori di eventi (AGGIUNGI IL GESTORE PER IL PULSANTE DI ESPORTAZIONE)
-    
-    function handleSelectionChange(event) {
-        const selectElement = event.target;
-        const type = selectElement.id;
-        const value = selectElement.value;
-        
-        updateKit(type, value);
-    }
+    // 5. Gestore per i pulsanti di scorrimento (nav-button)
+    document.querySelectorAll('.nav-button').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const type = event.target.dataset.type || event.target.closest('.nav-button').dataset.type; // Gestisce click sull'immagine o sul pulsante
+            const direction = event.target.dataset.direction || event.target.closest('.nav-button').dataset.direction;
+            
+            const numOptions = options[type].length;
+            let currentIndex = currentIndices[type];
 
-    magliaSelect.addEventListener('change', handleSelectionChange);
-    pantalonciniSelect.addEventListener('change', handleSelectionChange);
-    calzettoniSelect.addEventListener('change', handleSelectionChange);
+            if (direction === 'next') {
+                // Ciclo in avanti
+                currentIndex = (currentIndex + 1) % numOptions;
+            } else if (direction === 'prev') {
+                // Ciclo all'indietro
+                currentIndex = (currentIndex - 1 + numOptions) % numOptions;
+            }
 
-    // Gestore per il pulsante di esportazione
+            currentIndices[type] = currentIndex;
+            updateKitPiece(type);
+        });
+    });
+
+    // 6. Logica di Esportazione
     exportButton.addEventListener('click', async () => {
-        // Opzioni per html2canvas (puoi aggiustarle)
-        const options = {
-            scale: 2, // Aumenta la risoluzione per una migliore qualità
-            useCORS: true, // Importante se le immagini provengono da un dominio diverso
-            backgroundColor: '#ffffff' // Sfondo bianco per il canvas
+        // Nascondi i pulsanti per una cattura pulita
+        document.querySelectorAll('.nav-button').forEach(btn => btn.style.visibility = 'hidden');
+
+        // Cattura l'immagine
+        const captureOptions = {
+            scale: 2, // Cattura ad alta risoluzione per una migliore qualità
+            useCORS: true, 
+            backgroundColor: '#ffffff'
         };
 
-        // Cattura il contenuto del div 'kit-images' come canvas
-        const canvas = await html2canvas(kitImagesContainer, options);
-        const imgData = canvas.toDataURL('image/png'); // Ottieni i dati dell'immagine in formato PNG
+        const kitImagesOnly = document.querySelector('#kit-images'); 
+        const canvas = await html2canvas(kitImagesOnly, captureOptions);
+        const imgData = canvas.toDataURL('image/png');
 
-        // Chiedi all'utente il formato di esportazione
-        //const format = prompt("Vuoi esportare come JPG o PDF? Scrivi 'jpg' o 'pdf'.", "pdf");
-	
-	format = 'jpg';
+        // Ripristina la visibilità dei pulsanti
+        document.querySelectorAll('.nav-button').forEach(btn => btn.style.visibility = 'visible');
+
+        // Chiedi il formato e scarica
+        const format = prompt("Vuoi esportare come JPG o PDF? Scrivi 'jpg' o 'pdf'.", "jpg");
+
         if (format && format.toLowerCase() === 'jpg') {
-            // Scarica come JPG
-            const jpegData = canvas.toDataURL('image/jpeg', 0.9); // 0.9 è la qualità
+            // Esportazione JPG
+            const jpegData = canvas.toDataURL('image/jpeg', 0.9);
             const link = document.createElement('a');
             link.href = jpegData;
             link.download = 'completo-sportivo.jpg';
@@ -93,18 +100,17 @@ document.addEventListener('DOMContentLoaded', () => {
             link.click();
             document.body.removeChild(link);
         } else if (format && format.toLowerCase() === 'pdf') {
-            // Scarica come PDF
-            const { jsPDF } = window.jspdf; // Ottieni l'oggetto jsPDF dalla finestra
+            // Esportazione PDF
+            const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
-            // Calcola le dimensioni per adattare l'immagine alla pagina PDF
-            const imgWidth = 190; // Larghezza desiderata per l'immagine nel PDF (mm)
+            // Calcolo delle dimensioni per adattare l'immagine al PDF
+            const imgWidth = 190;
             const pageHeight = doc.internal.pageSize.height;
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
             
-            // Se l'altezza supera la pagina, centra o ridimensiona ulteriormente
-            const x = 10; // Margine sinistro
-            const y = (pageHeight - imgHeight) / 2; // Centra verticalmente
+            const x = 10;
+            const y = (pageHeight - imgHeight) / 2;
             
             doc.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
             doc.save('completo-sportivo.pdf');
@@ -113,11 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 5. Inizializzazione: Assicura che il completo iniziale sia corretto al caricamento
+    // 7. Inizializzazione: Assicura che le immagini di default siano caricate
     function initializeKit() {
-        updateKit('maglia', magliaSelect.value);
-        updateKit('pantaloncini', pantalonciniSelect.value);
-        updateKit('calzettoni', calzettoniSelect.value);
+        updateKitPiece('maglia');
+        updateKitPiece('pantaloncini');
+        updateKitPiece('calzettoni');
     }
 
     initializeKit();

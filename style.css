@@ -24,87 +24,104 @@ main {
     flex-direction: column;
     gap: 30px;
     padding: 20px;
-    max-width: 1200px;
+    max-width: 600px; /* Limita la larghezza per centralità */
     width: 100%;
-    align-items: flex-start; /* Allinea a sinistra su mobile */
+    align-items: center;
 }
 
-/* Layout per desktop (schermi più larghi) */
-@media (min-width: 768px) {
-    main {
-        flex-direction: row; /* Fianco a fianco */
-        justify-content: space-between;
-        align-items: flex-start; /* Allinea in alto */
-    }
-
-    .controls {
-        flex: 1;
-        max-width: 400px; /* Limita la larghezza dei controlli */
-    }
-
-    .kit-preview {
-        flex: 1;
-        max-width: 400px; /* Limita la larghezza dell'anteprima */
-    }
-}
-
-
-/* Stili per i Controlli (Dropdowns) */
-.controls, .kit-preview {
+.kit-preview {
     background-color: white;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
+    text-align: center;
 }
 
-.dropdown-group {
-    margin-bottom: 15px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* Include padding e border nella larghezza totale */
-    background-color: #fff;
-    font-size: 16px;
-    appearance: none; /* Rimuove lo stile di default del browser */
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-24.8%200L146.2%20178.6%2029.2%2069.4a17.6%2017.6%200%200%200-24.8%2024.8l130.4%20130.5c6.8%206.8%2017.8%206.8%2024.6%200l130.4-130.5a17.6%2017.6%200%200%200%200-24.8z%22%2F%3E%3C%2Fsvg%3E');
-    background-repeat: no-repeat;
-    background-position: right 10px top 50%;
-    background-size: 12px;
-}
-
-/* Stili per l'Anteprima del Completo */
+/* Container principale del kit (dove risiedono le immagini) */
 .kit-container {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra le immagini orizzontalmente */
-    margin-top: 20px;
+    align-items: center;
     border: 1px solid #ddd;
     border-radius: 4px;
-    overflow: hidden; /* Per contenere bene le immagini */
+    overflow: hidden; 
+    background-color: #fff;
+    padding: 0;
+    width: 100%;
+    max-width: 400px; /* Larghezza massima del kit */
+    margin: 0 auto;
+}
+
+/* Wrapper per ciascun pezzo del completo (Base per posizionamento frecce) */
+.kit-piece-wrapper {
+    position: relative; /* Base per il posizionamento assoluto dei pulsanti */
+    width: 100%;
+    display: block;
+    margin-bottom: 0; 
 }
 
 .kit-piece {
-    width: 100%; /* Le immagini occupano l'intera larghezza del container */
+    width: 100%; /* L'immagine riempie il wrapper */
     height: auto;
-    display: block; /* Rimuove spazi indesiderati sotto l'immagine */
+    display: block;
+    transition: opacity 0.3s ease; /* Effetto visivo di cambio */
 }
+
+/* Pulsanti di Navigazione (Le Frecce) */
+.nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    /* Dimensioni adattate per l'icona immagine */
+    width: 40px; 
+    height: 60px;
+    background: rgba(0, 0, 0, 0.4); /* Sfondo semi-trasparente */
+    border: none;
+    cursor: pointer;
+    padding: 0; /* Rimuovi il padding di default */
+    
+    /* Centramento dell'immagine icona all'interno del pulsante */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    transition: background-color 0.2s;
+	/*    opacity: 1;*/ 
+}
+
+.nav-button:hover {
+    background: rgba(0, 0, 0, 0.7); /* Sfondo più scuro al passaggio del mouse */
+    opacity: 1;
+}
+
+/* Stile per le Immagini Icona all'interno dei pulsanti */
+.nav-icon {
+    width: 25px; /* Dimensione effettiva della tua icona */
+    height: auto;
+    display: block;
+}
+
+.prev-button {
+    left: 0;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.next-button {
+    right: 0;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+/* Stile per il pulsante di esportazione */
 #export-button {
-    display: block; /* Ocupa tutta la larghezza disponibile */
-    width: fit-content; /* Larghezza si adatta al contenuto */
-    margin: 20px auto 0 auto; /* Centra il pulsante */
+    display: block;
+    width: fit-content;
+    margin: 30px auto 0 auto;
     padding: 12px 25px;
-    background-color: #28a745; /* Colore verde per il pulsante */
+    background-color: #28a745;
     color: white;
     border: none;
     border-radius: 5px;
@@ -115,18 +132,4 @@ select {
 
 #export-button:hover {
     background-color: #218838;
-}
-
-/* Assicurati che il contenitore del kit non abbia margini o padding che lo rendano "sfuocato" nell'immagine */
-.kit-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: hidden;
-    /* Aggiungi queste proprietà per una migliore cattura con html2canvas */
-    background-color: #fff; /* Assicurati che abbia uno sfondo solido */
-    padding: 0; /* Rimuovi padding se presente */
 }
