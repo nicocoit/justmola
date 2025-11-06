@@ -88,7 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.nav-button').forEach(btn => btn.style.visibility = 'visible');
 
         // Chiedi il formato e scarica
-        const format = prompt("Vuoi esportare come JPG o PDF? Scrivi 'jpg' o 'pdf'.", "jpg");
+        //const format = prompt("Vuoi esportare come JPG o PDF? Scrivi 'jpg' o 'pdf'.", "jpg");
+        const format = 'jpg';
 
         if (format && format.toLowerCase() === 'jpg') {
             // Esportazione JPG
