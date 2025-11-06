@@ -2,7 +2,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    background-color: #c5d9e2;
     color: #333;
     min-height: 100vh;
     display: flex;
@@ -11,7 +11,7 @@ body {
 }
 
 header {
-    background-color: #007bff;
+    background-color: #0bb1e5;
     color: white;
     padding: 20px;
     width: 100%;
@@ -30,7 +30,7 @@ main {
 }
 
 .kit-preview {
-    background-color: white;
+    background-color: #0bb1e5;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -123,7 +123,7 @@ main {
     width: fit-content;
     margin: 30px auto 0 auto;
     padding: 12px 25px;
-    background-color: #28a745;
+    background-color: #191f53;
     color: white;
     border: none;
     border-radius: 5px;

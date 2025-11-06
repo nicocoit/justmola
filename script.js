@@ -19,9 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'calzettoni': 0
     };
 
-    // Variabili per la gestione del touch (swipe)
-    let touchStartX = 0;
-    const SWIPE_THRESHOLD = 50; // Distanza minima in pixel per considerare il movimento come swipe
+// Variabili per la gestione del touch (swipe)
+let touchStartX = 0;
+let touchStartY = 0; // Nuova variabile per l'asse Y
+const SWIPE_THRESHOLD = 50; 
+const DIRECTION_THRESHOLD = 10; // Soglia per determinare se il movimento è orizzontale o verticale
 
     // 3. Riferimenti agli elementi DOM
     const imgMaglia = document.getElementById('img-maglia');
@@ -80,36 +82,49 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 5b. Gestore per il Trascinamento (Swipe)
-    kitPieceWrappers.forEach(wrapper => {
-        const type = wrapper.dataset.type;
+kitPieceWrappers.forEach(wrapper => {
+    const type = wrapper.dataset.type;
 
-        wrapper.addEventListener('touchstart', (e) => {
-            // Registra la posizione iniziale del tocco
-            touchStartX = e.touches[0].clientX;
-        }, { passive: true }); // passive: true per ottimizzazione mobile
+    wrapper.addEventListener('touchstart', (e) => {
+        // Registra la posizione iniziale di X e Y
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
 
-        wrapper.addEventListener('touchmove', (e) => {
-            // Impedisce lo scorrimento verticale della pagina durante lo swipe orizzontale
-            e.preventDefault(); 
-        }, { passive: false });
+    wrapper.addEventListener('touchmove', (e) => {
+        const touchCurrentX = e.touches[0].clientX;
+        const touchCurrentY = e.touches[0].clientY;
+        
+        const diffX = Math.abs(touchStartX - touchCurrentX);
+        const diffY = Math.abs(touchStartY - touchCurrentY);
 
-        wrapper.addEventListener('touchend', (e) => {
-            const touchEndX = e.changedTouches[0].clientX;
-            const diff = touchStartX - touchEndX; // Calcola la differenza orizzontale
+        // Se il movimento orizzontale è significativamente maggiore di quello verticale, 
+        // intercettiamo l'evento come swipe.
+        if (diffX > diffY && diffX > DIRECTION_THRESHOLD) {
+            e.preventDefault(); // Blocca lo scorrimento verticale della pagina
+        }
+        // Altrimenti, lasciamo che l'azione predefinita (scorrimento verticale) avvenga.
+    }, { passive: false }); // Deve essere false per usare preventDefault
 
-            if (Math.abs(diff) > SWIPE_THRESHOLD) {
-                // È uno swipe valido
-                if (diff > 0) {
-                    // Swipe a sinistra (passa al successivo)
-                    changeIndex(type, 'next');
-                } else {
-                    // Swipe a destra (passa al precedente)
-                    changeIndex(type, 'prev');
-                }
+    wrapper.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        // La logica si concentra solo sull'asse X per determinare lo swipe
+        const diff = touchStartX - touchEndX; 
+
+        if (Math.abs(diff) > SWIPE_THRESHOLD) {
+            // È uno swipe orizzontale valido
+            if (diff > 0) {
+                // Swipe a sinistra (passa al successivo)
+                changeIndex(type, 'next');
+            } else {
+                // Swipe a destra (passa al precedente)
+                changeIndex(type, 'prev');
             }
-            touchStartX = 0; // Resetta la posizione
-        });
+        }
+        touchStartX = 0; // Resetta la posizione
+        touchStartY = 0;
     });
+});
 
     // --- FINE GESTIONE SCORRIMENTO ---
 
