@@ -46,27 +46,32 @@ document.addEventListener('DOMContentLoaded', () => {
         img.alt = `${type} ${value}`;
     }
 
-    // 5. Gestore per i pulsanti di scorrimento (nav-button)
-    document.querySelectorAll('.nav-button').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const type = event.target.dataset.type || event.target.closest('.nav-button').dataset.type; // Gestisce click sull'immagine o sul pulsante
-            const direction = event.target.dataset.direction || event.target.closest('.nav-button').dataset.direction;
-            
-            const numOptions = options[type].length;
-            let currentIndex = currentIndices[type];
+// 5. Gestore per i pulsanti di scorrimento (nav-button)
+document.querySelectorAll('.nav-button').forEach(button => {
+    // Aggiungi il listener al pulsante stesso
+    button.addEventListener('click', (event) => {
+        // Usa `this` o `button` per riferirti all'elemento pulsante corretto, 
+        // anche se l'evento è originato dall'immagine al suo interno.
+        const clickedButton = button;
+        
+        const type = clickedButton.dataset.type; // 'maglia', 'pantaloncini', o 'calzettoni'
+        const direction = clickedButton.dataset.direction; // 'prev' o 'next'
+        
+        const numOptions = options[type].length;
+        let currentIndex = currentIndices[type];
 
-            if (direction === 'next') {
-                // Ciclo in avanti
-                currentIndex = (currentIndex + 1) % numOptions;
-            } else if (direction === 'prev') {
-                // Ciclo all'indietro
-                currentIndex = (currentIndex - 1 + numOptions) % numOptions;
-            }
+        if (direction === 'next') {
+            // Ciclo in avanti
+            currentIndex = (currentIndex + 1) % numOptions;
+        } else if (direction === 'prev') {
+            // Ciclo all'indietro
+            currentIndex = (currentIndex - 1 + numOptions) % numOptions;
+        }
 
-            currentIndices[type] = currentIndex;
-            updateKitPiece(type);
-        });
+        currentIndices[type] = currentIndex;
+        updateKitPiece(type);
     });
+});
 
     // 6. Logica di Esportazione
     exportButton.addEventListener('click', async () => {
