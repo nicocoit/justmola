@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuratore Completo Sportivo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Configuratore Completo JUST MOLA</h1>
+    </header>
+
+    <main>
+        <div class="controls">
+            <h2>Scegli il tuo completo:</h2>
+            
+            <div class="dropdown-group">
+                <label for="maglia">Maglia:</label>
+                <select id="maglia">
+                    <option value="bianca">Bianca</option>
+                    <option value="nera">Nera</option>
+                    <option value="rosa">Rosa</option>
+                </select>
+            </div>
+
+            <div class="dropdown-group">
+                <label for="pantaloncini">Pantaloncini:</label>
+                <select id="pantaloncini">
+                    <option value="bianchi">Bianchi</option>
+                    <option value="neri">Neri</option>
+                    <option value="blu">Blu</option>
+                </select>
+            </div>
+
+            <div class="dropdown-group">
+                <label for="calzettoni">Calzettoni:</label>
+                <select id="calzettoni">
+                    <option value="bianchi">Bianchi</option>
+                    <option value="neri">Neri</option>
+                    <option value="blu">Blu</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="kit-preview">
+            <h2>Anteprima Completo:</h2>
+            <div id="kit-images" class="kit-container">
+                <img id="img-maglia" src="mw.png" alt="Maglia" class="kit-piece">
+                <img id="img-pantaloncini" src="pw.png" alt="Pantaloncini" class="kit-piece">
+                <img id="img-calzettoni" src="cw.png" alt="Calzettoni" class="kit-piece">
+            </div>
+            
+            <button id="export-button">Esporta Completo</button>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
