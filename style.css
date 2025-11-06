@@ -74,45 +74,47 @@ main {
     top: 50%;
     transform: translateY(-50%);
     z-index: 10;
-    /* Dimensioni adattate per l'icona immagine */
-    width: 40px; 
-    height: 60px;
-    background: rgba(0, 0, 0, 0.4); /* Sfondo semi-trasparente */
+    
+    /* Aumenta le dimensioni e la padding per migliorare la Hitbox su touch */
+    width: 60px; /* Aumentato da 40px */
+    height: 100%; /* Copre l'intera altezza del capo per facilitare il tocco */
+    padding: 0 10px; /* Padding aggiunto per espandere l'area cliccabile */
+
+    background: rgba(0, 0, 0, 0.0); /* Rendi lo sfondo totalmente trasparente per non oscurare l'immagine */
     border: none;
     cursor: pointer;
-    padding: 0; /* Rimuovi il padding di default */
     
-    /* Centramento dell'immagine icona all'interno del pulsante */
+    /* Nasconde il contenuto visibile e si affida all'icona interna per l'aspetto */
     display: flex;
     align-items: center;
     justify-content: center;
     
     transition: background-color 0.2s;
-	/*    opacity: 1;*/ 
+    opacity: 1; 
 }
 
 .nav-button:hover {
-    background: rgba(0, 0, 0, 0.7); /* Sfondo più scuro al passaggio del mouse */
+    /* Mantieni l'effetto hover su desktop per feedback visivo */
+    background: rgba(0, 0, 0, 0.1); 
     opacity: 1;
 }
 
-/* Stile per le Immagini Icona all'interno dei pulsanti */
 .nav-icon {
-    width: 25px; /* Dimensione effettiva della tua icona */
+    width: 25px; 
     height: auto;
     display: block;
+    /* Aggiungi un'ombra o un filtro bianco per far risaltare l'icona sul completo */
+    filter: drop-shadow(0 0 3px rgba(0,0,0,0.8)); 
 }
 
 .prev-button {
     left: 0;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
+    /* Rimosse le border-radius per coprire l'altezza completa */
 }
 
 .next-button {
     right: 0;
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
+    /* Rimosse le border-radius per coprire l'altezza completa */
 }
 
 /* Stile per il pulsante di esportazione */
@@ -132,4 +134,21 @@ main {
 
 #export-button:hover {
     background-color: #218838;
+}
+
+.kit-piece {
+    /* Impedisce ai browser mobili di considerare l'immagine come trascinabile */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    pointer-events: auto; /* Assicura che l'immagine accetti eventi */
+    
+    /* ... (altri stili di .kit-piece) ... */
+}
+
+.nav-button {
+    /* Assicura che i pulsanti siano l'unica cosa intercettabile in quell'area */
+    pointer-events: auto;
+    
+    /* ... (altri stili di .nav-button) ... */
 }
