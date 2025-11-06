@@ -80,8 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const imgData = canvas.toDataURL('image/png'); // Ottieni i dati dell'immagine in formato PNG
 
         // Chiedi all'utente il formato di esportazione
-        const format = prompt("Vuoi esportare come JPG o PDF? Scrivi 'jpg' o 'pdf'.", "pdf");
-
+        //const format = prompt("Vuoi esportare come JPG o PDF? Scrivi 'jpg' o 'pdf'.", "pdf");
+	
+	format = 'jpg';
         if (format && format.toLowerCase() === 'jpg') {
             // Scarica come JPG
             const jpegData = canvas.toDataURL('image/jpeg', 0.9); // 0.9 è la qualità
