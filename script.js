@@ -208,43 +208,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // 8. FUNZIONE PRINCIPALE: Caricamento del file JSON
     async function loadConfiguration() {
         try {
-            // Usa una funzione per ottenere il percorso base del sito su GitHub Pages
-            function getBasePath() {
-                // Esempio: "https://nicocoit.github.io/justmola/index.html" -> "/repo-name/"
-                const path = window.location.pathname;
-                // La funzione cerca il nome della repository e lo usa come base
-                const repoName = path.split('/')[1]; 
-                // Restituisce '/repo-name/' o '/' se non c'è una repository (es. dominio personalizzato)
-                return repoName ? `/${repoName}/` : '/';
-            }
-
-            const basePath = getBasePath();
-            // Tenta di caricare il file JSON usando il percorso assoluto
-            const configUrl = `${basePath}config.json`;
-
-            console.log(`Tentativo di caricamento da: ${configUrl}`);
-
-            const response = await fetch(configUrl);
+            // Tenta SOLO il percorso relativo semplice, che è quello standard
+            // su GitHub Pages se il file è nella radice.
+            const response = await fetch('config.json');
+            
             if (!response.ok) {
-                // Se fallisce, tenta come fallback il percorso relativo
-                const fallbackResponse = await fetch('config.json');
-                if (!fallbackResponse.ok) {
-                    throw new Error(`Impossibile caricare config.json da entrambi i percorsi. Stato: ${response.status}`);
+                // Se non è OK, cerca di capire se è un 404
+                if (response.status === 404) {
+                    throw new Error("404 NOT FOUND: Il file 'config.json' non è stato trovato. Controlla la posizione e il nome del file (maiuscole/minuscole) sul tuo repository GitHub.");
+                } else {
+                    throw new Error(`Impossibile caricare config.json: Stato ${response.status}`);
                 }
-                kitPaths = await fallbackResponse.json();
-
-            } else {
-                 kitPaths = await response.json();
             }
             
+            kitPaths = await response.json();
+            
             console.log("Configurazione JSON caricata con successo.");
-            // Avvia l'interfaccia solo dopo che i dati sono stati caricati
             initializeKit();
 
         } catch (error) {
-            console.error("ERRORE FATALE: Il configuratore non è riuscito ad avviarsi. Controlla il file config.json sul server.", error);
-            // Mostra un messaggio di errore all'utente se il caricamento fallisce
-            alert("ERRORE: Impossibile caricare la configurazione. Il file 'config.json' non è accessibile. Controlla la console per i dettagli.");
+            console.error("ERRORE FATALE: Il configuratore non è riuscito ad avviarsi.", error);
+            // Mostra un messaggio di errore all'utente più specifico
+            alert(`ERRORE DI CARICAMENTO: ${error.message}. Il configuratore non può avviarsi senza il file di configurazione.`);
         }
     }
 
