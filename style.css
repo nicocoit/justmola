@@ -142,11 +142,15 @@ main {
     -webkit-user-select: none;
     -webkit-touch-callout: none;
     pointer-events: auto; /* Assicura che l'immagine accetti eventi */
-    
-    /* ... (altri stili di .kit-piece) ... */
 }
 
-/* Stili AGGIUNTI per il Popup di Selezione Formato */
+.nav-button {
+    /* Assicura che i pulsanti siano l'unica cosa intercettabile in quell'area */
+    pointer-events: auto;
+}
+
+
+/* STILI AGGIUNTI PER IL POPUP DI SELEZIONE FORMATO */
 .format-popup {
     position: fixed;
     top: 50%;

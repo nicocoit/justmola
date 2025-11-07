@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const SWIPE_THRESHOLD = 50; 
     const DIRECTION_THRESHOLD = 10; 
 
-    // 3. Riferimenti agli elementi DOM
+    // 3. Riferimenti agli elementi DOM (AGGIUNTI quelli del popup)
     const imgMaglia = document.getElementById('img-maglia');
     const imgPantaloncini = document.getElementById('img-pantaloncini');
     const imgCalzettoni = document.getElementById('img-calzettoni');
@@ -36,19 +36,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. Funzione per aggiornare l'immagine (USA kitPaths)
     function updateKitPiece(type) {
+        // Controllo per assicurarsi che i dati siano caricati
+        if (!kitPaths[type] || kitPaths[type].length === 0) return;
+        
         const index = currentIndices[type];
         const filename = kitPaths[type][index]; 
         
         const { img } = elementMap[type];
 
         img.src = filename;
-        // Alt text derivato dal nome del file (es. 'Maglie/maglia_bianca.png' -> 'maglia bianca')
+        // Alt text derivato dal nome del file
         const altName = filename.split('/').pop().replace(/_/g, ' ').replace(/\.png/i, '');
         img.alt = altName;
     }
 
     // 5. Funzione unificata per cambiare l'indice (USA kitPaths)
     function changeIndex(type, direction) {
+        if (!kitPaths[type] || kitPaths[type].length === 0) return;
+
         const numOptions = kitPaths[type].length; 
         let currentIndex = currentIndices[type];
 
@@ -82,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // 7b. Trascinamento (Swipe) - Con controllo per scorrimento verticale
+        // 7b. Trascinamento (Swipe)
         kitPieceWrappers.forEach(wrapper => {
             const type = wrapper.dataset.type;
 
@@ -98,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const diffX = Math.abs(touchStartX - touchCurrentX);
                 const diffY = Math.abs(touchStartY - touchCurrentY);
 
-                // Blocca lo scorrimento solo se il movimento orizzontale domina
                 if (diffX > diffY && diffX > DIRECTION_THRESHOLD) {
                     e.preventDefault(); 
                 }
@@ -134,20 +138,18 @@ document.addEventListener('DOMContentLoaded', () => {
             // 3. Mostra il popup di selezione formato
             formatPopup.classList.remove('hidden');
 
-            // 4. Blocca l'esecuzione finché l'utente non seleziona un formato (uso della Promise)
+            // 4. Blocca l'esecuzione finché l'utente non seleziona un formato
             const format = await new Promise(resolve => {
                 
-                // Listener per la conferma
                 confirmFormatButton.onclick = () => {
                     const selectedFormat = document.querySelector('input[name="export-format"]:checked').value;
-                    formatPopup.classList.add('hidden'); // Nasconde il popup
+                    formatPopup.classList.add('hidden');
                     resolve(selectedFormat);
                 };
                 
-                // Listener per l'annullamento
                 cancelFormatButton.onclick = () => {
-                    formatPopup.classList.add('hidden'); // Nasconde il popup
-                    resolve(null); // Risolve a null per annullare l'esportazione
+                    formatPopup.classList.add('hidden');
+                    resolve(null);
                 };
             });
 
@@ -182,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let drawHeight = targetHeight;
                 let drawWidth = targetWidth;
 
-                // Se l'altezza calcolata è troppo grande per la pagina (caso comune per un completo)
+                // Se l'altezza calcolata è troppo grande per la pagina (il nostro caso)
                 if (targetHeight > pageHeight - 20) {
                     // Ricalcola in base all'altezza massima (Lasciamo 20mm di margine totale)
                     drawHeight = pageHeight - 20; 
@@ -208,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('config.json');
             if (!response.ok) {
+                // Questo errore è comune se il file non è servito da un server web (es. file:///)
                 throw new Error(`Impossibile caricare config.json: Stato ${response.status}`);
             }
             kitPaths = await response.json();
@@ -216,7 +219,8 @@ document.addEventListener('DOMContentLoaded', () => {
             initializeKit();
 
         } catch (error) {
-            console.error("Errore fatale nel caricamento della configurazione. Assicurati che il file config.json sia presente e che il progetto sia servito da un web server (anche locale).", error);
+            console.error("Errore fatale nel caricamento della configurazione. Assicurati che il file config.json sia presente e che il progetto sia servito da un web server.", error);
+            alert("ERRORE: Impossibile caricare la configurazione. Controlla la console per i dettagli.");
         }
     }
 
