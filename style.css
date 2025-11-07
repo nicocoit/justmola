@@ -146,9 +146,64 @@ main {
     /* ... (altri stili di .kit-piece) ... */
 }
 
-.nav-button {
-    /* Assicura che i pulsanti siano l'unica cosa intercettabile in quell'area */
-    pointer-events: auto;
-    
-    /* ... (altri stili di .nav-button) ... */
+/* Stili AGGIUNTI per il Popup di Selezione Formato */
+.format-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #f4f4f4;
+    border: 1px solid #0bb1e5;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    text-align: center;
+    width: 90%;
+    max-width: 350px;
+}
+
+.format-popup h3 {
+    margin-top: 0;
+    color: #191f53;
+}
+
+.format-popup.hidden {
+    display: none;
+}
+
+.radio-group {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 20px 0;
+    font-size: 1.1em;
+}
+
+.radio-group label {
+    cursor: pointer;
+}
+
+#confirm-format-button,
+#cancel-format-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 5px;
+}
+
+#confirm-format-button {
+    background-color: #191f53;
+    color: white;
+}
+
+#confirm-format-button:hover {
+    background-color: #0bb1e5;
+}
+
+#cancel-format-button {
+    background-color: #ccc;
+    color: #333;
 }
