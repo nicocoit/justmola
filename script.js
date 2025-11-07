@@ -1,17 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Definisci le opzioni e la mappa delle immagini
-    const options = {
-        'maglia': ['bianca', 'nera', 'rosa'],
-        'pantaloncini': ['bianchi', 'neri', 'blu'],
-        'calzettoni': ['bianchi', 'neri', 'blu']
-    };
-
-    const imageMap = {
-        'maglia': { 'bianca': 'mw.png', 'nera': 'mn.png', 'rosa': 'mr.png' },
-        'pantaloncini': { 'bianchi': 'pw.png', 'neri': 'pn.png', 'blu': 'pb.png' },
-        'calzettoni': { 'bianchi': 'cw.png', 'neri': 'cn.png', 'blu': 'cb.png' }
-    };
-
+    
+    // 1. Definisci le variabili iniziali
+    let kitPaths = {}; // Qui verranno caricati i dati dal config.json
+    
     // 2. Stato corrente del configuratore
     const currentIndices = {
         'maglia': 0, 
@@ -21,18 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Variabili per la gestione del touch (swipe)
     let touchStartX = 0;
-    let touchStartY = 0; // Nuova variabile per l'asse Y
+    let touchStartY = 0; 
     const SWIPE_THRESHOLD = 50; 
-    const DIRECTION_THRESHOLD = 10; // Soglia per determinare se il movimento è orizzontale o verticale
+    const DIRECTION_THRESHOLD = 10; 
 
-    // 3. Riferimenti agli elementi DOM (AGGIORNATI)
+    // 3. Riferimenti agli elementi DOM
     const imgMaglia = document.getElementById('img-maglia');
     const imgPantaloncini = document.getElementById('img-pantaloncini');
     const imgCalzettoni = document.getElementById('img-calzettoni');
 
-    const kitImagesContainer = document.getElementById('kit-images');
     const exportButton = document.getElementById('export-button');
-
     const formatPopup = document.getElementById('format-selection-popup');
     const confirmFormatButton = document.getElementById('confirm-format-button');
     const cancelFormatButton = document.getElementById('cancel-format-button');
@@ -45,195 +34,192 @@ document.addEventListener('DOMContentLoaded', () => {
         'calzettoni': { img: imgCalzettoni }
     };
 
-    // 4. Funzione per aggiornare l'immagine
+    // 4. Funzione per aggiornare l'immagine (USA kitPaths)
     function updateKitPiece(type) {
         const index = currentIndices[type];
-        const value = options[type][index]; 
-        const filename = imageMap[type][value];
+        const filename = kitPaths[type][index]; 
         
         const { img } = elementMap[type];
 
-        // Aggiorna l'immagine e l'alt text
         img.src = filename;
-        img.alt = `${type} ${value}`;
+        // Alt text derivato dal nome del file (es. 'Maglie/maglia_bianca.png' -> 'maglia bianca')
+        const altName = filename.split('/').pop().replace(/_/g, ' ').replace(/\.png/i, '');
+        img.alt = altName;
     }
 
-    // --- SEZIONE CHIAVE: GESTIONE SCORRIMENTO (Click e Swipe) ---
-
-    // Funzione unificata per cambiare l'indice
+    // 5. Funzione unificata per cambiare l'indice (USA kitPaths)
     function changeIndex(type, direction) {
-        const numOptions = options[type].length;
+        const numOptions = kitPaths[type].length; 
         let currentIndex = currentIndices[type];
 
         if (direction === 'next') {
             currentIndex = (currentIndex + 1) % numOptions;
         } else if (direction === 'prev') {
-            // Aggiungiamo numOptions prima del modulo per gestire i valori negativi in JavaScript
             currentIndex = (currentIndex - 1 + numOptions) % numOptions;
         }
 
         currentIndices[type] = currentIndex;
         updateKitPiece(type);
     }
-    
-    // 5a. Gestore per i pulsanti di scorrimento (Click)
-    document.querySelectorAll('.nav-button').forEach(button => {
-        button.addEventListener('click', () => {
-            const type = button.dataset.type;
-            const direction = button.dataset.direction;
-            changeIndex(type, direction);
-        });
-    });
 
-    // 5b. Gestore per il Trascinamento (Swipe)
-    kitPieceWrappers.forEach(wrapper => {
-        const type = wrapper.dataset.type;
-
-        wrapper.addEventListener('touchstart', (e) => {
-            // Registra la posizione iniziale di X e Y
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
-
-        wrapper.addEventListener('touchmove', (e) => {
-            const touchCurrentX = e.touches[0].clientX;
-            const touchCurrentY = e.touches[0].clientY;
-            
-            const diffX = Math.abs(touchStartX - touchCurrentX);
-            const diffY = Math.abs(touchStartY - touchCurrentY);
-
-            // Se il movimento orizzontale è significativamente maggiore di quello verticale, 
-            // intercettiamo l'evento come swipe.
-            if (diffX > diffY && diffX > DIRECTION_THRESHOLD) {
-                e.preventDefault(); // Blocca lo scorrimento verticale della pagina
-            }
-            // Altrimenti, lasciamo che l'azione predefinita (scorrimento verticale) avvenga.
-        }, { passive: false }); // Deve essere false per usare preventDefault
-
-        wrapper.addEventListener('touchend', (e) => {
-            const touchEndX = e.changedTouches[0].clientX;
-            // La logica si concentra solo sull'asse X per determinare lo swipe
-            const diff = touchStartX - touchEndX; 
-
-            if (Math.abs(diff) > SWIPE_THRESHOLD) {
-                // È uno swipe orizzontale valido
-                if (diff > 0) {
-                    // Swipe a sinistra (passa al successivo)
-                    changeIndex(type, 'next');
-                } else {
-                    // Swipe a destra (passa al precedente)
-                    changeIndex(type, 'prev');
-                }
-            }
-            touchStartX = 0; // Resetta la posizione
-            touchStartY = 0;
-        });
-    });
-
-    // --- FINE GESTIONE SCORRIMENTO ---
-
-   // 6. Logica di Esportazione (AGGIORNATA per correggere l'altezza del PDF)
-    exportButton.addEventListener('click', async () => {
-        // 1. Nascondi i pulsanti di navigazione
-        document.querySelectorAll('.nav-button').forEach(btn => btn.style.visibility = 'hidden');
-
-        // 2. Cattura l'immagine (avviene subito per evitare ritardi)
-        const captureOptions = {
-            scale: 2, 
-            useCORS: true, 
-            backgroundColor: '#ffffff'
-        };
-
-        const kitImagesOnly = document.querySelector('#kit-images'); 
-        const canvas = await html2canvas(kitImagesOnly, captureOptions);
-        const imgData = canvas.toDataURL('image/png');
-
-        // 3. Mostra il popup di selezione formato
-        formatPopup.classList.remove('hidden');
-
-        // 4. Blocca l'esecuzione finché l'utente non seleziona un formato (uso della Promise)
-        const format = await new Promise(resolve => {
-            
-            // Listener per la conferma
-            confirmFormatButton.onclick = () => {
-                const selectedFormat = document.querySelector('input[name="export-format"]:checked').value;
-                formatPopup.classList.add('hidden'); // Nasconde il popup
-                resolve(selectedFormat);
-            };
-            
-            // Listener per l'annullamento
-            cancelFormatButton.onclick = () => {
-                formatPopup.classList.add('hidden'); // Nasconde il popup
-                resolve(null); // Risolve a null per annullare l'esportazione
-            };
-        });
-
-        // 5. Ripristina la visibilità dei pulsanti di navigazione
-        document.querySelectorAll('.nav-button').forEach(btn => btn.style.visibility = 'visible');
-
-        // 6. Esegue l'esportazione
-        if (format === 'jpg') {
-            const jpegData = canvas.toDataURL('image/jpeg', 0.9);
-            const link = document.createElement('a');
-            link.href = jpegData;
-            link.download = 'completo-sportivo.jpg';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-} else if (format === 'pdf') {
-            const { jsPDF } = window.jspdf;
-            
-            // Determina se il contenuto è molto più alto che largo
-            const aspectRatio = canvas.height / canvas.width;
-            
-            // **NUOVA LOGICA DI INIZIALIZZAZIONE PDF**
-            // Se l'immagine è alta più di 1.5 volte la larghezza, usa l'orientamento 'p' (portrait) per dare priorità all'altezza.
-            // In realtà l'immagine del completo è sempre molto verticale, quindi usiamo 'portrait' (p)
-            // e regoliamo la larghezza massima.
-            const doc = new jsPDF('p', 'mm', 'a4'); 
-            
-            // Larghezza della pagina A4 (circa 210mm) e Altezza (circa 297mm)
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const pageHeight = doc.internal.pageSize.getHeight();
-            
-            // Larghezza dell'immagine nel PDF (Lasciamo un margine di 10mm per lato)
-            const targetWidth = pageWidth - 20; // 190mm
-            
-            // Calcola l'altezza mantenendo le proporzioni
-            const targetHeight = (canvas.height * targetWidth) / canvas.width;
-
-            let finalX = 10;
-            let finalY = 10;
-            let drawHeight = targetHeight;
-            let drawWidth = targetWidth;
-
-            // Se l'altezza calcolata è ancora troppo grande per la pagina (caso probabile)
-            if (targetHeight > pageHeight - 20) {
-                // Ricalcola in base all'altezza massima (Lasciamo 20mm di margine totale)
-                drawHeight = pageHeight - 20; 
-                drawWidth = (canvas.width * drawHeight) / canvas.height; // Ricalcola la larghezza
-                
-                // Centra orizzontalmente la nuova larghezza
-                finalX = (pageWidth - drawWidth) / 2;
-                finalY = 10; // Allinea in alto
-            } else {
-                // Altrimenti, centra verticalmente
-                finalY = (pageHeight - targetHeight) / 2;
-            }
-
-            // Inserisci l'immagine con le dimensioni finali calcolate
-            doc.addImage(imgData, 'PNG', finalX, finalY, drawWidth, drawHeight);
-            doc.save('completo-sportivo.pdf');
-        } 
-        // Se 'format' è null (annullato), non facciamo nulla.
-    });
-
-    // 7. Inizializzazione
+    // 6. Logica di Inizializzazione (Ora chiamata dopo il caricamento JSON)
     function initializeKit() {
+        setupEventListeners();
+
         updateKitPiece('maglia');
         updateKitPiece('pantaloncini');
         updateKitPiece('calzettoni');
     }
 
-    initializeKit();
+    // 7. Configurazione degli Event Listeners
+    function setupEventListeners() {
+        // 7a. Click sui pulsanti
+        document.querySelectorAll('.nav-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const type = button.dataset.type;
+                const direction = button.dataset.direction;
+                changeIndex(type, direction);
+            });
+        });
+
+        // 7b. Trascinamento (Swipe) - Con controllo per scorrimento verticale
+        kitPieceWrappers.forEach(wrapper => {
+            const type = wrapper.dataset.type;
+
+            wrapper.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            wrapper.addEventListener('touchmove', (e) => {
+                const touchCurrentX = e.touches[0].clientX;
+                const touchCurrentY = e.touches[0].clientY;
+                
+                const diffX = Math.abs(touchStartX - touchCurrentX);
+                const diffY = Math.abs(touchStartY - touchCurrentY);
+
+                // Blocca lo scorrimento solo se il movimento orizzontale domina
+                if (diffX > diffY && diffX > DIRECTION_THRESHOLD) {
+                    e.preventDefault(); 
+                }
+            }, { passive: false });
+
+            wrapper.addEventListener('touchend', (e) => {
+                const touchEndX = e.changedTouches[0].clientX;
+                const diff = touchStartX - touchEndX; 
+
+                if (Math.abs(diff) > SWIPE_THRESHOLD) {
+                    if (diff > 0) {
+                        changeIndex(type, 'next');
+                    } else {
+                        changeIndex(type, 'prev');
+                    }
+                }
+                touchStartX = 0; 
+                touchStartY = 0;
+            });
+        });
+
+        // 7c. Esportazione (CON POPUP RADIO BUTTON E PDF FIXED)
+        exportButton.addEventListener('click', async () => {
+            // 1. Nascondi i pulsanti di navigazione
+            document.querySelectorAll('.nav-button').forEach(btn => btn.style.visibility = 'hidden');
+
+            // 2. Cattura l'immagine (avviene subito)
+            const captureOptions = { scale: 2, useCORS: true, backgroundColor: '#ffffff' };
+            const kitImagesOnly = document.querySelector('#kit-images'); 
+            const canvas = await html2canvas(kitImagesOnly, captureOptions);
+            const imgData = canvas.toDataURL('image/png');
+
+            // 3. Mostra il popup di selezione formato
+            formatPopup.classList.remove('hidden');
+
+            // 4. Blocca l'esecuzione finché l'utente non seleziona un formato (uso della Promise)
+            const format = await new Promise(resolve => {
+                
+                // Listener per la conferma
+                confirmFormatButton.onclick = () => {
+                    const selectedFormat = document.querySelector('input[name="export-format"]:checked').value;
+                    formatPopup.classList.add('hidden'); // Nasconde il popup
+                    resolve(selectedFormat);
+                };
+                
+                // Listener per l'annullamento
+                cancelFormatButton.onclick = () => {
+                    formatPopup.classList.add('hidden'); // Nasconde il popup
+                    resolve(null); // Risolve a null per annullare l'esportazione
+                };
+            });
+
+            // 5. Ripristina la visibilità dei pulsanti di navigazione
+            document.querySelectorAll('.nav-button').forEach(btn => btn.style.visibility = 'visible');
+
+            // 6. Esegue l'esportazione
+            if (format === 'jpg') {
+                const jpegData = canvas.toDataURL('image/jpeg', 0.9);
+                const link = document.createElement('a');
+                link.href = jpegData;
+                link.download = 'completo-sportivo.jpg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            } else if (format === 'pdf') {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4'); // Orientamento Portrait (Verticale)
+                
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                
+                // Larghezza target (Pagina - 20mm di margine)
+                const targetWidth = pageWidth - 20; 
+                
+                // Calcola l'altezza mantenendo le proporzioni
+                const targetHeight = (canvas.height * targetWidth) / canvas.width;
+
+                let finalX = 10;
+                let finalY = 10;
+                let drawHeight = targetHeight;
+                let drawWidth = targetWidth;
+
+                // Se l'altezza calcolata è troppo grande per la pagina (caso comune per un completo)
+                if (targetHeight > pageHeight - 20) {
+                    // Ricalcola in base all'altezza massima (Lasciamo 20mm di margine totale)
+                    drawHeight = pageHeight - 20; 
+                    drawWidth = (canvas.width * drawHeight) / canvas.height; 
+                    
+                    // Centra orizzontalmente la nuova larghezza e allinea in alto
+                    finalX = (pageWidth - drawWidth) / 2;
+                    finalY = 10; 
+                } else {
+                    // Altrimenti, centra verticalmente
+                    finalY = (pageHeight - targetHeight) / 2;
+                }
+
+                // Inserisci l'immagine con le dimensioni finali calcolate
+                doc.addImage(imgData, 'PNG', finalX, finalY, drawWidth, drawHeight);
+                doc.save('completo-sportivo.pdf');
+            } 
+        });
+    }
+
+    // 8. FUNZIONE PRINCIPALE: Caricamento del file JSON
+    async function loadConfiguration() {
+        try {
+            const response = await fetch('config.json');
+            if (!response.ok) {
+                throw new Error(`Impossibile caricare config.json: Stato ${response.status}`);
+            }
+            kitPaths = await response.json();
+            
+            // Avvia l'interfaccia solo dopo che i dati sono stati caricati
+            initializeKit();
+
+        } catch (error) {
+            console.error("Errore fatale nel caricamento della configurazione. Assicurati che il file config.json sia presente e che il progetto sia servito da un web server (anche locale).", error);
+        }
+    }
+
+    // Esegui il caricamento all'avvio
+    loadConfiguration();
 });

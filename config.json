@@ -1,0 +1,20 @@
+{
+  "maglia": [
+    "maglie/bianca.png",
+    "maglie/nera.png",
+    "maglie/rosa.png"
+    /* AGGIUNGI QUI I NUOVI PERCORSI MAGLIA */
+  ],
+  "pantaloncini": [
+    "pantaloncini/bianchi.png",
+    "pantaloncini/blu.png",
+    "pantaloncini/nreri.png"
+    /* AGGIUNGI QUI I NUOVI PERCORSI PANTALONCINI */
+  ],
+  "calzettoni": [
+    "calzettoni/bianchi.png",
+    "calzettoni/blu.png",
+    "calzettoni/neri.png"
+    /* AGGIUNGI QUI I NUOVI PERCORSI CALZETTONI */
+  ]
+}
