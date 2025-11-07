@@ -1,17 +1,17 @@
 {
   "maglia": [
-    "Maglie/maglia_bianca.png",
-    "Maglie/maglia_nera.png",
-    "Maglie/maglia_rosa.png"
+    "maglie/maglia_bianca.png",
+    "maglie/maglia_nera.png",
+    "maglie/maglia_rosa.png"
   ],
   "pantaloncini": [
-    "Pantaloncini/panta_bianchi.png",
-    "Pantaloncini/panta_neri.png",
-    "Pantaloncini/panta_blu.png"
+    "pantaloncini/panta_bianchi.png",
+    "pantaloncini/panta_neri.png",
+    "pantaloncini/panta_blu.png"
   ],
   "calzettoni": [
-    "Calzettoni/calze_bianche.png",
-    "Calzettoni/calze_neri.png",
-    "Calzettoni/calze_blu.png"
+    "calzettoni/calze_bianche.png",
+    "calzettoni/calze_neri.png",
+    "calzettoni/calze_blu.png"
   ]
 }
