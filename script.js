@@ -180,24 +180,49 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        } else if (format === 'pdf') {
+} else if (format === 'pdf') {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
             
-            const imgWidth = 190; // Larghezza desiderata nel PDF (quasi piena larghezza A4)
+            // Determina se il contenuto è molto più alto che largo
+            const aspectRatio = canvas.height / canvas.width;
             
-            // *** CORREZIONE QUI: Usa l'aspect ratio per calcolare l'altezza ***
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            // **NUOVA LOGICA DI INIZIALIZZAZIONE PDF**
+            // Se l'immagine è alta più di 1.5 volte la larghezza, usa l'orientamento 'p' (portrait) per dare priorità all'altezza.
+            // In realtà l'immagine del completo è sempre molto verticale, quindi usiamo 'portrait' (p)
+            // e regoliamo la larghezza massima.
+            const doc = new jsPDF('p', 'mm', 'a4'); 
             
-            // Determina la posizione per centrare orizzontalmente e verticalmente (opzionale)
-            const pageHeight = doc.internal.pageSize.getHeight(); // Usa getHeight()
-            const x = 10; // Margine sinistro
-            const y = (pageHeight - imgHeight) / 2;
+            // Larghezza della pagina A4 (circa 210mm) e Altezza (circa 297mm)
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
             
-            // Se l'immagine è troppo alta per la pagina, la allineiamo in alto (y=10)
-            const finalY = imgHeight > pageHeight ? 10 : y;
+            // Larghezza dell'immagine nel PDF (Lasciamo un margine di 10mm per lato)
+            const targetWidth = pageWidth - 20; // 190mm
+            
+            // Calcola l'altezza mantenendo le proporzioni
+            const targetHeight = (canvas.height * targetWidth) / canvas.width;
 
-            doc.addImage(imgData, 'PNG', x, finalY, imgWidth, imgHeight);
+            let finalX = 10;
+            let finalY = 10;
+            let drawHeight = targetHeight;
+            let drawWidth = targetWidth;
+
+            // Se l'altezza calcolata è ancora troppo grande per la pagina (caso probabile)
+            if (targetHeight > pageHeight - 20) {
+                // Ricalcola in base all'altezza massima (Lasciamo 20mm di margine totale)
+                drawHeight = pageHeight - 20; 
+                drawWidth = (canvas.width * drawHeight) / canvas.height; // Ricalcola la larghezza
+                
+                // Centra orizzontalmente la nuova larghezza
+                finalX = (pageWidth - drawWidth) / 2;
+                finalY = 10; // Allinea in alto
+            } else {
+                // Altrimenti, centra verticalmente
+                finalY = (pageHeight - targetHeight) / 2;
+            }
+
+            // Inserisci l'immagine con le dimensioni finali calcolate
+            doc.addImage(imgData, 'PNG', finalX, finalY, drawWidth, drawHeight);
             doc.save('completo-sportivo.pdf');
         } 
         // Se 'format' è null (annullato), non facciamo nulla.
