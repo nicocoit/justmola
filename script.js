@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FINE GESTIONE SCORRIMENTO ---
 
-    // 6. Logica di Esportazione (AGGIORNATA con Popup Radio Button)
+   // 6. Logica di Esportazione (AGGIORNATA per correggere l'altezza del PDF)
     exportButton.addEventListener('click', async () => {
         // 1. Nascondi i pulsanti di navigazione
         document.querySelectorAll('.nav-button').forEach(btn => btn.style.visibility = 'hidden');
@@ -184,14 +184,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
-            const imgWidth = 190;
-            const pageHeight = doc.internal.pageSize.height;
+            const imgWidth = 190; // Larghezza desiderata nel PDF (quasi piena larghezza A4)
+            
+            // *** CORREZIONE QUI: Usa l'aspect ratio per calcolare l'altezza ***
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
             
-            const x = 10;
+            // Determina la posizione per centrare orizzontalmente e verticalmente (opzionale)
+            const pageHeight = doc.internal.pageSize.getHeight(); // Usa getHeight()
+            const x = 10; // Margine sinistro
             const y = (pageHeight - imgHeight) / 2;
             
-            doc.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+            // Se l'immagine è troppo alta per la pagina, la allineiamo in alto (y=10)
+            const finalY = imgHeight > pageHeight ? 10 : y;
+
+            doc.addImage(imgData, 'PNG', x, finalY, imgWidth, imgHeight);
             doc.save('completo-sportivo.pdf');
         } 
         // Se 'format' è null (annullato), non facciamo nulla.
