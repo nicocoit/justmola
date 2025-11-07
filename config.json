@@ -1,20 +1,20 @@
 {
   "maglia": [
-    "maglie/bianca.png",
-    "maglie/nera.png",
-    "maglie/rosa.png"
+    "maglie/maglia_bianca.png",
+    "maglie/maglia_nera.png",
+    "maglie/maglia_rosa.png"
     /* AGGIUNGI QUI I NUOVI PERCORSI MAGLIA */
   ],
   "pantaloncini": [
-    "pantaloncini/bianchi.png",
-    "pantaloncini/blu.png",
-    "pantaloncini/neri.png"
+    "pantaloncini/panta_bianchi.png",
+    "pantaloncini/panta_neri.png",
+    "pantaloncini/panta_blu.png"
     /* AGGIUNGI QUI I NUOVI PERCORSI PANTALONCINI */
   ],
   "calzettoni": [
-    "calzettoni/bianchi.png",
-    "calzettoni/blu.png",
-    "calzettoni/neri.png"
+    "calzettoni/calze_bianche.png",
+    "calzettoni/calze_neri.png",
+    "calzettoni/calze_blu.png"
     /* AGGIUNGI QUI I NUOVI PERCORSI CALZETTONI */
   ]
 }
