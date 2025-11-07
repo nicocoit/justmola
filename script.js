@@ -208,19 +208,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // 8. FUNZIONE PRINCIPALE: Caricamento del file JSON
     async function loadConfiguration() {
         try {
-            const response = await fetch('config.json');
-            if (!response.ok) {
-                // Questo errore è comune se il file non è servito da un server web (es. file:///)
-                throw new Error(`Impossibile caricare config.json: Stato ${response.status}`);
+            // Usa una funzione per ottenere il percorso base del sito su GitHub Pages
+            function getBasePath() {
+                // Esempio: "https://nicocoit.github.io/justmola/index.html" -> "/repo-name/"
+                const path = window.location.pathname;
+                // La funzione cerca il nome della repository e lo usa come base
+                const repoName = path.split('/')[1]; 
+                // Restituisce '/repo-name/' o '/' se non c'è una repository (es. dominio personalizzato)
+                return repoName ? `/${repoName}/` : '/';
             }
-            kitPaths = await response.json();
+
+            const basePath = getBasePath();
+            // Tenta di caricare il file JSON usando il percorso assoluto
+            const configUrl = `${basePath}config.json`;
+
+            console.log(`Tentativo di caricamento da: ${configUrl}`);
+
+            const response = await fetch(configUrl);
+            if (!response.ok) {
+                // Se fallisce, tenta come fallback il percorso relativo
+                const fallbackResponse = await fetch('config.json');
+                if (!fallbackResponse.ok) {
+                    throw new Error(`Impossibile caricare config.json da entrambi i percorsi. Stato: ${response.status}`);
+                }
+                kitPaths = await fallbackResponse.json();
+
+            } else {
+                 kitPaths = await response.json();
+            }
             
+            console.log("Configurazione JSON caricata con successo.");
             // Avvia l'interfaccia solo dopo che i dati sono stati caricati
             initializeKit();
 
         } catch (error) {
-            console.error("Errore fatale nel caricamento della configurazione. Assicurati che il file config.json sia presente e che il progetto sia servito da un web server.", error);
-            alert("ERRORE: Impossibile caricare la configurazione. Controlla la console per i dettagli.");
+            console.error("ERRORE FATALE: Il configuratore non è riuscito ad avviarsi. Controlla il file config.json sul server.", error);
+            // Mostra un messaggio di errore all'utente se il caricamento fallisce
+            alert("ERRORE: Impossibile caricare la configurazione. Il file 'config.json' non è accessibile. Controlla la console per i dettagli.");
         }
     }
 
