@@ -1,19 +1,18 @@
 {
   "maglia": [
-    "maglie/maglia_bianca.png",
-    "maglie/maglia_nera.png",
-    "maglie/maglia_rosa.png"
+    "maglie/maglia_W.png",
+    "maglie/maglia_B.png",
+    "maglie/maglia_Y.png"
   ],
   "pantaloncini": [
-    "pantaloncini/panta_bianchi.png",
-    "pantaloncini/panta_neri.png",
-    "pantaloncini/panta_blu.png"
+    "pantaloncini/panta_W.png",
+    "pantaloncini/panta_B.png",
+    "pantaloncini/panta_Y.png"
   ],
   "calzettoni": [
-    "calzettoni/calze_bianche.png",
-    "calzettoni/calze_neri.png",
-    "calzettoni/calze_blu.png",
-    "calzettoni/calze_blu_elettrico.png",
-    "calzettoni/calze_celesti.png"
+    "calzettoni/calze_W.png",
+    "calzettoni/calze_B.png",
+    "calzettoni/calze_Y.png",
+    "calzettoni/calze_C.png"
   ]
 }
